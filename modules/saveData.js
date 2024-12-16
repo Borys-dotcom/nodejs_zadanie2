@@ -1,17 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 
-const saveData = (sourcePath, destinationPath, overwrite) => {
+const saveData = (sourcePath, destinationFolder, overwrite) => {
     let dataJSON = '';
 
-
     fs.readFile(sourcePath, (err, data) => {
+        let destinationPath = path.join(sourcePath.replace(path.basename(sourcePath), ''), destinationFolder);
+
         dataJSON = JSON.parse(data.toString());
         createFolder(destinationPath);
         createFile(dataJSON, destinationPath, overwrite);
     });
 
-    const createFolder = () => {
+    const createFolder = (destinationPath) => {
+        console.log(destinationPath)
         if (!fs.existsSync(destinationPath)) {
             fs.mkdirSync(destinationPath, { recursive: true }, (err) => {
                 if (err) {
