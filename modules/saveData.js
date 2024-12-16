@@ -3,20 +3,17 @@ const path = require('path');
 
 const saveData = (sourcePath, destinationPath, overwrite) => {
     let dataJSON = '';
-    let outputDirectory = destinationPath;
-    console.log(outputDirectory);
 
 
     fs.readFile(sourcePath, (err, data) => {
         dataJSON = JSON.parse(data.toString());
-        createFolder();
-        // console.log(JSON.stringify(dataJSON));
-        createFile(dataJSON);
+        createFolder(destinationPath);
+        createFile(dataJSON, destinationPath, overwrite);
     });
 
     const createFolder = () => {
-        if (!fs.existsSync(outputDirectory)) {
-            fs.mkdirSync(outputDirectory, { recursive: true }, (err) => {
+        if (!fs.existsSync(destinationPath)) {
+            fs.mkdirSync(destinationPath, { recursive: true }, (err) => {
                 if (err) {
                     console.error(err);
                 }
@@ -27,17 +24,33 @@ const saveData = (sourcePath, destinationPath, overwrite) => {
         }
     }
 
-    const createFile = (data) => {
+    const createFile = (data, destinationPath, overwrite) => {
         data.forEach((record, index) => {
             let fileContent = '';
-            fileContent += `Name: ${record.name.split(" ")[0]}` 
-            // fileContent += `\n`;
-            fileContent += `Surname: ${record.name.split(" ")[1]}`
+            let fileName = '';
 
-            fs.writeFile(path.join(destinationPath, `${record.id}-${record.name.split(" ")[0]}-${record.name.split(" ")[1]}.txt`), JSON.stringify(fileContent), (err) => {
-                if (err) console.error(err);
-                console.log('utworzono plik');
-            });
+            fileName = `${record.id}-${record.name.split(" ")[0]}-${record.name.split(" ")[1]}.txt`;
+
+            fileContent += `Name: ${record.name.split(" ")[0]}`
+            fileContent += `\r\n`;
+            fileContent += `Surname: ${record.name.split(" ")[1]}`
+            fileContent += `\r\n`;
+            fileContent += `Street: ${record.address.street}`
+            fileContent += `\r\n`;
+            fileContent += `Zip Code: ${record.address.zipcode}`
+            fileContent += `\r\n`;
+            fileContent += `City: ${record.address.city}`
+            fileContent += `\r\n`;
+            fileContent += `Phone: ${record.phone}`
+
+            if (!fs.existsSync(path.join(destinationPath, fileName)) || ((fs.existsSync(path.join(destinationPath, fileName)) && overwrite))) {
+                fs.writeFile(path.join(destinationPath, fileName), fileContent, (err) => {
+                    if (err) console.error(err);
+                    console.log('utworzono plik');
+                });
+            } else {
+                console.log(`Plik: ${fileName} już istnieje.`)
+            } 
         })
     }
 }
